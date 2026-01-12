@@ -1,0 +1,12 @@
+django
+django-ninja
+jupyter
+langchain
+langchain-openai
+langgraph
+langgraph-supervisor
+python-decouple
+permit
+requests
+streamlit
+psycopg[binary]

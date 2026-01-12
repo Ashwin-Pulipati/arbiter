@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-size-xs: var(--fluid-xs); /* Tooltips, captions, labels */
+  --font-size-sm: var(--fluid-sm); /* Small text, buttons, input labels */
+  --font-size-md: var(--fluid-md); /* Body text, paragraph */
+  --font-size-lg: var(--fluid-lg); /* H6, H5, small headings */
+  --font-size-xl: var(--fluid-xl); /* H4, H3, subheadings */
+  --font-size-2xl: var(--fluid-2xl); /* H2, section titles */
+  --font-size-3xl: var(--fluid-3xl); /* H1, hero title */
+  --font-size-4xl: var(--fluid-4xl);
+  --font-size-5xl: var(--fluid-5xl);
+  --font-size-6xl: var(--fluid-6xl);
+  --font-size-7xl: var(--fluid-7xl);
+  --line-height: var(--fluid-line); /* Universal line-height */
+
+  --max-w-xs: var(--fluid-w-xs);
+  --max-w-sm: var(--fluid-w-sm);
+  --max-w-md: var(--fluid-w-md);
+  --max-w-lg: var(--fluid-w-lg);
+  --max-w-xl: var(--fluid-w-xl);
+  --max-w-2xl: var(--fluid-w-2xl);
+  --max-w-3xl: var(--fluid-w-3xl);
+  --max-w-4xl: var(--fluid-w-4xl);
+  --max-w-5xl: var(--fluid-w-5xl);
+  --max-w-6xl: var(--fluid-w-6xl);
+  --max-w-7xl: var(--fluid-w-7xl);
+
+  --font-sans: var(--font-nunitoSans); /* Body */ 
+  --font-mono: var(--font-nunito); /* Subheadings */ -
+  -font-display: var(--font-corben); /* Main Headings */
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --fluid-xs: clamp(0.75rem, 1vw, 0.875rem);
+  --fluid-sm: clamp(0.875rem, 1.2vw, 1rem);
+  --fluid-md: clamp(1rem, 1.5vw, 1.125rem);
+  --fluid-lg: clamp(1.25rem, 2vw, 1.5rem);
+  --fluid-xl: clamp(1.5rem, 2.5vw, 2rem);
+  --fluid-2xl: clamp(1.75rem, 3vw, 2.5rem);
+  --fluid-3xl: clamp(2rem, 4vw, 3rem);
+  --fluid-4xl: clamp(2.25rem, 4.5vw, 3.5rem);
+  --fluid-5xl: clamp(2.75rem, 5.25vw, 4.25rem);
+  --fluid-6xl: clamp(3.25rem, 6vw, 5.25rem);
+  --fluid-7xl: clamp(3.75rem, 7vw, 6.25rem);
+  --fluid-line: 1.5;
+
+  --fluid-w-xs: clamp(20rem, 55vw, 24rem); /* ~320 → 384 */
+  --fluid-w-sm: clamp(24rem, 60vw, 30rem); /* ~384 → 480 */
+  --fluid-w-md: clamp(28rem, 64vw, 36rem); /* ~448 → 576 */
+  --fluid-w-lg: clamp(32rem, 68vw, 42rem); /* ~512 → 672 */
+  --fluid-w-xl: clamp(36rem, 72vw, 48rem); /* ~576 → 768 */
+  --fluid-w-2xl: clamp(42rem, 76vw, 56rem); /* ~672 → 896 */
+  --fluid-w-3xl: clamp(48rem, 80vw, 64rem); /* ~768 → 1024 */
+  --fluid-w-4xl: clamp(56rem, 84vw, 72rem); /* ~896 → 1152 */
+  --fluid-w-5xl: clamp(64rem, 88vw, 80rem); /* ~1024 → 1280 */
+  --fluid-w-6xl: clamp(72rem, 92vw, 88rem); /* ~1152 → 1408 */
+  --fluid-w-7xl: clamp(80rem, 96vw, 96rem); /* ~1280 → 1536 */
+
+  --radius: 0.625rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.15 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
+  
+  --primary: oklch(0.83 0.16 85);
+  --primary-foreground: oklch(0.15 0 0);
+  
+  --secondary: oklch(0.62 0.18 255);
+  --secondary-foreground: oklch(0.98 0 0);
+  
+  --accent: oklch(0.64 0.22 27);
+  --accent-foreground: oklch(0.98 0 0);
+
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.83 0.16 85);
+
+  --destructive: oklch(0.58 0.24 27);
+
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--secondary-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.98 0 0);
+
+  --card: oklch(0.22 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+
+  --primary: oklch(0.78 0.16 85);
+  --primary-foreground: oklch(0.15 0 0);
+
+  --secondary: oklch(0.72 0.18 255);
+  --secondary-foreground: oklch(0.15 0 0);
+
+  --accent: oklch(0.68 0.22 27);
+  --accent-foreground: oklch(0.15 0 0);
+
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.78 0.16 85);
+
+  --destructive: oklch(0.7 0.23 27);
+
+  --sidebar: oklch(0.2 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--secondary-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: var(--fluid-md);
+    line-height: var(--fluid-line);
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply inline-block bg-linear-to-br from-primary via-secondary to-accent bg-clip-text text-transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-small {
+    @apply font-semibold text-foreground;
+  }
+}
