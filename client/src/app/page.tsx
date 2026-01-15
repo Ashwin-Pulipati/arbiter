@@ -41,7 +41,7 @@ export default function DashboardPage() {
       <div className="flex flex-col space-y-2">
         <h2 className="text-3xl font-bold tracking-tight font-display text-gradient">Dashboard</h2>
         <p className="text-muted-foreground">
-            Welcome back, <span className="font-semibold text-foreground">{user.username}</span>. Here's what's happening.
+            Welcome back, <span className="font-semibold text-foreground">{user.username}</span>. Here&apos;s what&apos;s happening.
         </p>
       </div>
 
@@ -90,7 +90,7 @@ export default function DashboardPage() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium leading-none">{doc.title}</p>
-                                    <p className="text-xs text-muted-foreground mt-1 truncate max-w-[200px]">{doc.content.substring(0, 30)}...</p>
+                                    <p className="text-xs text-muted-foreground mt-1 truncate max-w-[200px]">{doc.content ? doc.content.substring(0, 30) : ""}...</p>
                                 </div>
                             </div>
                             <div className="text-xs text-muted-foreground">

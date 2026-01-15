@@ -6,7 +6,6 @@ import { UserProvider } from "@/components/providers/user-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 
-
 const corben = Corben({
   variable: "--font-corben",
   subsets: ["latin"],
@@ -33,21 +32,25 @@ export const metadata: Metadata = {
   description: "Agentic AI Workspace",
 };
 
-type RootLayoutProps = {
+export default function RootLayout({
+  children,
+}: {
   readonly children: React.ReactNode;
-};
-
-export default function RootLayout({ children }: RootLayoutProps) {
+}) {
   return (
     <html
       lang="en"
       suppressHydrationWarning
       className={`${corben.variable} ${nunito.variable} ${nunitoSans.variable}`}
     >
-      <body
-        suppressHydrationWarning
-        className="bg-background text-foreground antialiased min-h-screen overflow-hidden"
-      >
+      <body className="bg-background text-foreground antialiased min-h-screen">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-2xl focus:bg-background focus:px-4 focus:py-2 focus:ring-2 focus:ring-ring"
+        >
+          Skip to content
+        </a>
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -56,9 +59,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <UserProvider>
             <TooltipProvider delayDuration={0}>
-              <div className="flex h-screen w-full">
-                {children}
-              </div>
+              {children}
               <Toaster richColors closeButton position="top-right" />
             </TooltipProvider>
           </UserProvider>

@@ -1,7 +1,7 @@
 export interface Document {
   id: number;
   title: string;
-  content: string;
+  content: string | null;
   owner_id: number;
   owner_username: string;
   status: "created" | "updated" | "delete_requested";
@@ -22,6 +22,21 @@ export interface Movie {
   release_date: string;
   poster_path: string | null;
   vote_average: number;
+}
+
+export interface ChatThread {
+  id: number;
+  uuid: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  created_at?: string;
 }
 
 export interface ChatRequest {

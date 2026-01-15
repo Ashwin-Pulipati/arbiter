@@ -1,13 +1,35 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, MessageSquare, FileText, Film, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserSelector } from "@/components/user-selector";
-import { Separator } from "@/components/ui/separator";
+import * as React from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { LayoutDashboard, MessageSquare, FileText, Film, MoreHorizontal, Trash2, Plus } from "lucide-react"
+import { useAsyncFn } from "react-use"
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuAction,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupLabel,
+  SidebarRail,
+  useSidebar,
+} from "@/components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { UserSelector } from "@/components/user-selector"
+import { useUser } from "@/components/providers/user-provider"
+import { api } from "@/lib/api"
 
 const routes = [
   {
@@ -28,52 +50,120 @@ const routes = [
     href: "/documents",
     color: "text-pink-700",
   },
-  {
-    label: "Movies",
-    icon: Film,
-    href: "/movies",
-    color: "text-orange-700",
-  },
-];
+  { label: "Movies", icon: Film, href: "/movies", color: "text-orange-700" },
+] as const
 
-export function Sidebar() {
-  const pathname = usePathname();
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+  const { user } = useUser()
+
+  const [historyState, fetchHistory] = useAsyncFn(async () => {
+    if (!user) return []
+    return api.chat.listThreads(user)
+  }, [user])
+
+  const [deleteState, deleteThread] = useAsyncFn(async (id: number) => {
+    await api.chat.deleteThread(id, user)
+    fetchHistory()
+  }, [user, fetchHistory])
+
+  React.useEffect(() => {
+    fetchHistory()
+  }, [fetchHistory])
+
+  // Poll for updates (simple way to keep history fresh when chatting)
+  React.useEffect(() => {
+    const interval = setInterval(fetchHistory, 5000)
+    return () => clearInterval(interval)
+  }, [fetchHistory])
+
+  const history = historyState.value || []
 
   return (
-    <div className="space-y-4 py-4 flex flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground w-64">
-      <div className="px-3 py-2 flex-1">
-        <Link href="/" className="flex items-center pl-3 mb-10 group">
-            <div className="relative w-8 h-8 mr-3 bg-linear-to-tr from-primary to-secondary rounded-lg flex items-center justify-center">
-                 <span className="font-bold text-white text-lg">A</span>
-            </div>
-          <h1 className="text-2xl font-bold font-display text-gradient">
-            Arbiter
-          </h1>
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <Link
+          href="/"
+          className="flex items-center gap-2 px-2 py-2 group-data-[collapsible=icon]:justify-center"
+        >
+          <div className="relative flex aspect-square size-8 items-center justify-center rounded-lg bg-linear-to-tr from-primary to-secondary text-sidebar-primary-foreground shadow-sm">
+            <span className="text-lg font-bold text-white">A</span>
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="truncate font-bold font-display text-gradient">Arbiter</span>
+            <span className="truncate text-xs text-muted-foreground">Agentic Workspace</span>
+          </div>
         </Link>
-        <div className="space-y-1">
-          {routes.map((route) => (
-            <Link
-              key={route.href}
-              href={route.href}
-            >
-                <Button 
-                    variant={pathname === route.href ? "secondary" : "ghost"} 
-                    className={cn(
-                        "w-full justify-start transition-all hover:scale-[1.02] active:scale-[0.98]", 
-                        pathname === route.href && "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
-                    )}
-                >
-                    <route.icon className={cn("h-5 w-5 mr-3", route.color)} />
-                    {route.label}
-                </Button>
-            </Link>
-          ))}
-        </div>
-      </div>
-      <div className="px-3 py-2">
-         <Separator className="mb-4" />
-         <UserSelector />
-      </div>
-    </div>
-  );
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarMenu className="px-2">
+            {routes.map((route) => {
+              const active = pathname === route.href
+              return (
+                <SidebarMenuItem key={route.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={active}
+                    tooltip={route.label}
+                    className="rounded-xl px-3"
+                  >
+                    <Link href={route.href}>
+                      <route.icon className={route.color} />
+                      <span>{route.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+
+                {history.length > 0 && (
+                  <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+                    <SidebarGroupLabel>Recents</SidebarGroupLabel>
+                    <SidebarGroupAction title="New Chat" asChild>
+                      <Link href="/chat">
+                        <Plus /> <span className="sr-only">New Chat</span>
+                      </Link>
+                    </SidebarGroupAction>
+                    <SidebarMenu className="px-2">
+              {history.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton asChild tooltip={item.title} className="rounded-xl px-3">
+                    <Link href={`/chat?thread=${item.uuid}`}>
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <SidebarMenuAction showOnHover>
+                        <MoreHorizontal />
+                        <span className="sr-only">More</span>
+                      </SidebarMenuAction>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-48 rounded-lg" side="bottom" align="end">
+                      <DropdownMenuItem onClick={() => deleteThread(item.id)}>
+                        <Trash2 className="text-muted-foreground" />
+                        <span>Delete Thread</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <UserSelector />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
 }
