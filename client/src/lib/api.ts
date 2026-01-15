@@ -1,117 +1,157 @@
-import { Document, DocumentCreate, Movie, ChatRequest, ChatResponse } from "@/types";
+import type {
+  ChatRequest,
+  ChatResponse,
+  ChatThread,
+  ChatMessage,
+  Document,
+  DocumentCreate,
+  Movie,
+} from "@/types";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api"
+).replace(/\/+$/, "");
 
-interface FetchOptions extends RequestInit {
-  userId?: number;
-  tenant?: string;
-  role?: string;
-  username?: string;
+export type ApiUserHeaders = {
+  id: number;
+  tenant: string;
+  role: string;
+  username: string;
+};
+
+type ApiErrorShape = { detail?: string; message?: string; error?: string };
+
+export class ApiError extends Error {
+  readonly status: number;
+  readonly payload?: unknown;
+
+  constructor(status: number, message: string, payload?: unknown) {
+    super(message);
+    this.status = status;
+    this.payload = payload;
+  }
 }
 
-async function fetchAPI<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-  const { userId, tenant, role, username, headers, ...rest } = options;
-  
-  const defaultHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+type FetchOptions = Omit<RequestInit, "headers"> & {
+  headers?: Record<string, string>;
+  user?: ApiUserHeaders;
+  signal?: AbortSignal;
+};
 
-  if (userId) {
-    defaultHeaders["X-User-Id"] = userId.toString();
+async function parseJsonSafe(res: Response): Promise<unknown> {
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return undefined;
+  try {
+    return await res.json();
+  } catch {
+    return undefined;
   }
-  if (tenant) {
-    defaultHeaders["X-Tenant"] = tenant;
-  }
-  if (role) {
-    defaultHeaders["X-User-Role"] = role;
-  }
-  if (username) {
-    defaultHeaders["X-User-Name"] = username;
-  }
+}
 
+function buildHeaders(user?: ApiUserHeaders, extra?: Record<string, string>) {
+  const h: Record<string, string> = { "Content-Type": "application/json" };
+  if (user) {
+    h["X-User-Id"] = String(user.id);
+    h["X-Tenant"] = user.tenant;
+    h["X-User-Role"] = user.role;
+    h["X-User-Name"] = user.username;
+  }
+  return { ...h, ...(extra || {}) };
+}
+
+async function fetchAPI<T>(
+  endpoint: string,
+  options: FetchOptions = {}
+): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-    headers: { ...defaultHeaders, ...(headers as Record<string, string>) },
-    ...rest,
+    ...options,
+    headers: buildHeaders(options.user, options.headers),
   });
 
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.detail || `API Error: ${res.statusText}`);
+    const payload = await parseJsonSafe(res);
+    const e = (payload || {}) as ApiErrorShape;
+    const msg =
+      e.detail ||
+      e.message ||
+      e.error ||
+      `API Error: ${res.status} ${res.statusText}`;
+    throw new ApiError(res.status, msg, payload);
   }
 
-  return res.json();
+  return (await parseJsonSafe(res)) as T;
 }
 
 export const api = {
   documents: {
-    list: (user: { id: number; tenant: string; role: string; username: string }) => 
-      fetchAPI<Document[]>("/documents/", { 
-        userId: user.id, 
-        tenant: user.tenant,
-        role: user.role,
-        username: user.username 
-      }),
-      
-    get: (id: number, user: { id: number; tenant: string; role: string; username: string }) => 
-      fetchAPI<Document>(`/documents/${id}`, { 
-        userId: user.id, 
-        tenant: user.tenant,
-        role: user.role,
-        username: user.username 
-      }),
-      
-    create: (data: DocumentCreate, user: { id: number; tenant: string; role: string; username: string }) => 
-      fetchAPI<Document>("/documents/", { 
-        method: "POST", 
+    list: (user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<Document[]>("/documents/", { user, signal }),
+    get: (id: number, user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<Document>(`/documents/${id}`, { user, signal }),
+    create: (
+      data: DocumentCreate,
+      user: ApiUserHeaders,
+      signal?: AbortSignal
+    ) =>
+      fetchAPI<Document>("/documents/", {
+        method: "POST",
         body: JSON.stringify(data),
-        userId: user.id, 
-        tenant: user.tenant,
-        role: user.role,
-        username: user.username 
+        user,
+        signal,
       }),
-
-    update: (id: number, data: Partial<DocumentCreate>, user: { id: number; tenant: string; role: string; username: string }) => 
-      fetchAPI<Document>(`/documents/${id}`, { 
-        method: "PUT", 
+    update: (
+      id: number,
+      data: Partial<DocumentCreate>,
+      user: ApiUserHeaders,
+      signal?: AbortSignal
+    ) =>
+      fetchAPI<Document>(`/documents/${id}`, {
+        method: "PUT",
         body: JSON.stringify(data),
-        userId: user.id, 
-        tenant: user.tenant,
-        role: user.role,
-        username: user.username 
+        user,
+        signal,
       }),
-      
-    delete: (id: number, user: { id: number; tenant: string; role: string; username: string }) => 
-      fetchAPI<{ message: string }>(`/documents/${id}`, { 
-        method: "DELETE", 
-        userId: user.id, 
-        tenant: user.tenant,
-        role: user.role,
-        username: user.username 
+    delete: (id: number, user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<{ message: string }>(`/documents/${id}`, {
+        method: "DELETE",
+        user,
+        signal,
       }),
-
-    requestDelete: (id: number, user: { id: number; tenant: string; role: string; username: string }) => 
-      fetchAPI<Document>(`/documents/${id}/request-delete`, { 
-        method: "POST", 
-        userId: user.id, 
-        tenant: user.tenant,
-        role: user.role,
-        username: user.username 
+    requestDelete: (id: number, user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<Document>(`/documents/${id}/request-delete`, {
+        method: "POST",
+        user,
+        signal,
       }),
   },
-  
+
   movies: {
-    search: (query: string) => 
-      fetchAPI<{ results: Movie[] }>(`/movies/search?query=${encodeURIComponent(query)}&limit=20`),
-      
-    get: (id: number) => 
-      fetchAPI<Movie>(`/movies/${id}`),
+    search: (query: string, limit = 20, signal?: AbortSignal) =>
+      fetchAPI<{ results: Movie[] }>(
+        `/movies/search?query=${encodeURIComponent(query)}&limit=${limit}`,
+        { signal }
+      ),
+    get: (id: number, signal?: AbortSignal) =>
+      fetchAPI<Movie>(`/movies/${id}`, { signal }),
   },
-  
+
   chat: {
-    send: (data: ChatRequest) => 
-      fetchAPI<ChatResponse>("/chat/", { 
-        method: "POST", 
-        body: JSON.stringify(data) 
+    listThreads: (user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<ChatThread[]>("/chat/threads", { user, signal }),
+    getThreadMessages: (threadId: string, user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<ChatMessage[]>(`/chat/threads/${threadId}/messages`, { user, signal }),
+    deleteThread: (id: number, user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<{ message: string }>(`/chat/threads/${id}`, {
+        method: "DELETE",
+        user,
+        signal,
       }),
-  }
+    send: (data: ChatRequest, user: ApiUserHeaders, signal?: AbortSignal) =>
+      fetchAPI<ChatResponse>("/chat/", {
+        method: "POST",
+        body: JSON.stringify(data),
+        user,
+        signal,
+      }),
+  },
 };

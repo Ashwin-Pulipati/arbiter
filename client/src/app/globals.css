@@ -108,13 +108,13 @@
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0 0);
-  
+
   --primary: oklch(0.83 0.16 85);
   --primary-foreground: oklch(0.15 0 0);
-  
+
   --secondary: oklch(0.62 0.18 255);
   --secondary-foreground: oklch(0.98 0 0);
-  
+
   --accent: oklch(0.64 0.22 27);
   --accent-foreground: oklch(0.98 0 0);
 
@@ -183,6 +183,15 @@
     font-size: var(--fluid-md);
     line-height: var(--fluid-line);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 }
 
 @layer components {
@@ -194,5 +203,26 @@
 
   .text-gradient-small {
     @apply font-semibold text-foreground;
+  }
+
+.surface {
+    @apply rounded-3xl border bg-card/70 backdrop-blur supports-backdrop-filter:bg-card/50 shadow-sm;
+  }
+
+  .surface-hero {
+    @apply rounded-3xl border bg-linear-to-br from-primary/10 via-secondary/10 to-accent/10 shadow-sm;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
