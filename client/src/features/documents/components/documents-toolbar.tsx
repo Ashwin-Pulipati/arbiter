@@ -14,7 +14,7 @@ export function DocumentsToolbar({
   onCreate: () => void;
 }) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="space-y-1">
         <h2 className="text-3xl font-bold font-display text-gradient">
           Documents
@@ -24,8 +24,8 @@ export function DocumentsToolbar({
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="relative w-full md:w-[360px]">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative w-full sm:w-[380px]">
           <Search
             className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground"
             aria-hidden="true"
@@ -33,15 +33,15 @@ export function DocumentsToolbar({
           <Input
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="Search documents..."
-            className="pl-10 h-11 focus-ring"
+            placeholder="Search documents…"
+            className="pl-10 h-12 rounded-2xl focus-ring surface"
             aria-label="Search documents"
           />
         </div>
 
         <Button
           onClick={onCreate}
-          className="shadow-lg shadow-primary/20 focus-ring"
+          className="h-12 rounded-2xl shadow-lg shadow-primary/20 focus-ring"
         >
           <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
           Add

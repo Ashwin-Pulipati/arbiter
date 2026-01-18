@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { Bot, FileText, Film } from "lucide-react";
 import type { Agent } from "../chat.types";
 import { AGENTS } from "../chat.types";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -25,19 +27,19 @@ export function AgentSelect({
   onChange: (v: Agent) => void;
 }) {
   return (
-    <div className="w-[220px]">
+    <div className="w-[230px]">
       <Select value={value} onValueChange={(v) => onChange(v as Agent)}>
-        <SelectTrigger className="focus-ring">
+        <SelectTrigger className={cn("focus-ring rounded-2xl h-11 surface")}>
           <SelectValue placeholder="Select Agent" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-2xl">
           {AGENTS.map((a) => {
             const Icon = ICONS[a.value];
             return (
-              <SelectItem key={a.value} value={a.value}>
+              <SelectItem key={a.value} value={a.value} className="rounded-xl">
                 <div className="flex items-center gap-2">
                   <Icon className="h-4 w-4" aria-hidden="true" />
-                  <span>{a.label}</span>
+                  <span className="font-medium">{a.label}</span>
                 </div>
               </SelectItem>
             );

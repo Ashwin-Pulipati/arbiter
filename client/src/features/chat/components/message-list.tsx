@@ -23,7 +23,7 @@ function AgentIcon({ agent }: { agent: ChatMessage["agent"] }) {
 export function MessageList({ messages, loading, endRef }: MessageListProps) {
   return (
     <div
-      className="space-y-6"
+      className="space-y-5"
       role="log"
       aria-live="polite"
       aria-relevant="additions text"
@@ -35,15 +35,15 @@ export function MessageList({ messages, loading, endRef }: MessageListProps) {
             key={msg.id}
             className={cn(
               "flex w-full gap-3",
-              isUser ? "flex-row-reverse" : "flex-row"
+              isUser ? "flex-row-reverse" : "flex-row",
             )}
           >
             <Avatar
               className={cn(
-                "h-8 w-8",
+                "h-8 w-8 ring-1 ring-border/60",
                 isUser
                   ? "bg-secondary text-secondary-foreground"
-                  : "bg-primary/10 text-primary"
+                  : "bg-primary/10 text-primary",
               )}
             >
               {isUser ? (
@@ -62,27 +62,35 @@ export function MessageList({ messages, loading, endRef }: MessageListProps) {
 
             <div
               className={cn(
-                "flex flex-col max-w-[82%]",
-                isUser ? "items-end" : "items-start"
+                "flex flex-col max-w-[86%] md:max-w-[78%]",
+                isUser ? "items-end" : "items-start",
               )}
             >
               <div
                 className={cn(
-                  "px-4 py-2 rounded-2xl text-sm shadow-sm whitespace-pre-wrap break-words",
+                  "px-4 py-2.5 rounded-3xl text-sm shadow-sm whitespace-pre-wrap break-words",
+                  "ring-1 ring-border/50",
                   isUser
-                    ? "bg-primary text-primary-foreground rounded-tr-none"
-                    : "bg-muted text-foreground rounded-tl-none"
+                    ? "bg-linear-to-br from-primary via-secondary to-accent text-primary-foreground rounded-tr-none"
+                    : "bg-card/70 backdrop-blur supports-backdrop-filter:bg-card/50 text-foreground rounded-tl-none",
                 )}
               >
                 {msg.content}
               </div>
 
-              {!isUser && (
-                <span className="text-[10px] text-muted-foreground mt-1 ml-1 inline-flex items-center gap-1">
-                  <AgentIcon agent={msg.agent} />
-                  <span>{msg.agent}</span>
-                </span>
-              )}
+              <div
+                className={cn(
+                  "mt-1 inline-flex items-center gap-2 text-[10px]",
+                  isUser ? "text-muted-foreground/80" : "text-muted-foreground",
+                )}
+              >
+                {!isUser && (
+                  <span className="inline-flex items-center gap-1">
+                    <AgentIcon agent={msg.agent} />
+                    <span className="font-medium">{msg.agent}</span>
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -90,16 +98,19 @@ export function MessageList({ messages, loading, endRef }: MessageListProps) {
 
       {loading && (
         <div className="flex w-full gap-3">
-          <Avatar className="h-8 w-8 bg-primary/10 text-primary">
+          <Avatar className="h-8 w-8 bg-primary/10 text-primary ring-1 ring-border/60">
             <AvatarFallback>
               <Bot className="h-4 w-4" aria-hidden="true" />
             </AvatarFallback>
           </Avatar>
 
-          <div className="bg-muted px-4 py-2 rounded-2xl rounded-tl-none flex items-center gap-1">
-            <span className="w-2 h-2 bg-primary/50 rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <span className="w-2 h-2 bg-primary/50 rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <span className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" />
+          <div
+            className="surface px-4 py-2.5 rounded-3xl rounded-tl-none flex items-center gap-1"
+            aria-label="Assistant is typing"
+          >
+            <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
+            <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" />
             <span className="sr-only">Assistant is typing</span>
           </div>
         </div>
